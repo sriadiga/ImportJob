@@ -6,11 +6,11 @@ apply plugin: 'java'
 apply plugin: 'eclipse'
 
 jar {
-  baseName = 'os-plugin'
-  version =  '1.0.0'
+  baseName = 'os-msk-import-plugin'
+  version =  '5.1.0'
 
   manifest {
-    attributes("os-plugin-name": "os-plugin")
+    attributes("os-plugin-name": "os-msk-import-plugin")
   }
   
   

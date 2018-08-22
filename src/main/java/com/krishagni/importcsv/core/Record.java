@@ -5,10 +5,6 @@ import java.util.Map;
 
 public class Record {
 	private Map<String, String> record = new HashMap<String, String>();
-
-	public Map<String, String> get() {
-		return record;
-	}
 	
 	public String getValue(String column) {
 		return record.get(column);

@@ -9,7 +9,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import com.krishagni.catissueplus.core.biospecimen.domain.factory.CprErrorCode;
 import com.krishagni.catissueplus.core.biospecimen.events.CollectionProtocolRegistrationDetail;
 import com.krishagni.catissueplus.core.biospecimen.events.ParticipantDetail;
 import com.krishagni.catissueplus.core.biospecimen.events.PmiDetail;
@@ -22,7 +21,7 @@ import com.krishagni.importcsv.datasource.DataSource;
 import com.krishagni.importcsv.datasource.Impl.CsvFileDataSource;
 
 public class CsvImporter {
-	private final static String FILE_NAME = "/home/user/Music/participant.csv";
+	private final static String FILE_NAME = "/Users/swapnil/Downloads/apache-tomcat-9.0.10/data/import.csv";
 	
 	private final static String DATE_FORMAT = "MM/dd/yyyy";
 	
@@ -42,7 +41,7 @@ public class CsvImporter {
 	
 	private final static Log logger = LogFactory.getLog(CsvImporter.class);
 	
-	private OpenSpecimenException ose = new OpenSpecimenException(ErrorType.USER_ERROR);
+	private OpenSpecimenException ose;
 	
 	@Autowired
 	private CollectionProtocolRegistrationService cprSvc;
@@ -52,11 +51,12 @@ public class CsvImporter {
 	private int rowCount;
 	
 	public void importCsv() {
+		ose =  new OpenSpecimenException(ErrorType.USER_ERROR);
 		dataSource = new CsvFileDataSource(FILE_NAME);
 		rowCount = 0;
 		
 		try {
-		    isHeaderRowValid(dataSource); 
+		    isHeaderRowValid(dataSource);
 		    while (dataSource.hasNext()) {
 		    	Record record = dataSource.nextRecord();
 		    	rowCount++;
@@ -86,13 +86,15 @@ public class CsvImporter {
 		// Setting PMI
 		cprDetail.getParticipant().setPhiAccess(true);
 		PmiDetail pmi = new PmiDetail();
+
 		pmi.setMrn(record.getValue(MRN));
 		pmi.setSiteName(record.getValue(SITE_NAME));
+		
 		cprDetail.getParticipant().setPmi(pmi);
 		ResponseEvent<CollectionProtocolRegistrationDetail> resp = cprSvc.createRegistration(getRequest(cprDetail));
 		
 		if (resp.getError() != null) {
-			ose.addError(CprErrorCode.NOT_FOUND, "Error at row " + String.valueOf(rowCount) + " " + resp.getError().getMessage() + "\n");
+			resp.getError().getErrors().forEach(error -> ose.addError(error.error(), error.params()));
 		}
 	}
 	
