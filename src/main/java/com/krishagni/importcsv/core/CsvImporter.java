@@ -23,8 +23,10 @@ import com.krishagni.importcsv.datasource.Impl.CsvFileDataSource;
 
 public class CsvImporter {
 	private final static String FILE_NAME = "/home/user/Music/participant.csv";
+	//sri: eventually should not be hardcoded
 	
 	private final static String DATE_FORMAT = "MM/dd/yyyy";
+	//sri: should not be hardcoded
 	
 	private final static Log logger = LogFactory.getLog(CsvImporter.class);
 	
@@ -51,6 +53,7 @@ public class CsvImporter {
 		    ose.checkAndThrow();
 		} catch (Exception e) {
 		    logger.error("Error while parsing csv file : \n" + e.getMessage());
+			//sri: should send an email in case of error 
 		} finally {
 		    if (dataSource != null) {
 		    	dataSource.close();
@@ -61,6 +64,11 @@ public class CsvImporter {
 	private void importParticipant(Record record) throws ParseException {                
 		CollectionProtocolRegistrationDetail cprDetail = new CollectionProtocolRegistrationDetail(); 
 		cprDetail.setCpShortTitle(record.getValue("IRBNumber"));
+		//sri: nothing should be harcoded in the code. this should be done from start. 
+		//this kind of comments were given many times before
+		//instead of writing code like this and then later cleaning up, write properly to start with.
+		// move all hardcoding to resource file.
+		
 		cprDetail.setParticipant(new ParticipantDetail());
 		cprDetail.setRegistrationDate(new SimpleDateFormat(DATE_FORMAT).parse(record.getValue("Start Date")));
 		
@@ -79,6 +87,9 @@ public class CsvImporter {
 		
 		if (resp.getError() != null) {
 			ose.addError(CprErrorCode.NOT_FOUND, "Error at row " + String.valueOf(rowCount) + " " + resp.getError().getMessage() + "\n");
+			//sri this error msg is fine but not good enough
+			//think how this will be used, imagine you are the IT guy managing this system.
+			// and tell me what would make it easiest for you in case of errors
 		}
 	}
 	
@@ -92,6 +103,9 @@ public class CsvImporter {
 		expectedHeader.add("MRN");
 		expectedHeader.add("IRBNumber");
 		expectedHeader.add("Start Date");
+		//sri: this is why hard coding is bad. if you think like a "good programmer" in this method
+		// you would have said "wait a minute, this is the 2nd time i am copy pasting the same header names
+		// these are super basic programming concepts that i do not want to be giving comments at this level
 		
 		for (String header : csvHeaderRow) {
 			if (!expectedHeader.contains(header)) {
