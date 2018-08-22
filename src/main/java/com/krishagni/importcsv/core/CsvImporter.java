@@ -26,6 +26,20 @@ public class CsvImporter {
 	
 	private final static String DATE_FORMAT = "MM/dd/yyyy";
 	
+	private final static String FIRST_NAME = "First Name";
+	
+	private final static String LAST_NAME = "Last Name";
+	
+	private final static String PPID = "Treatment";
+	
+	private final static String MRN = "MRN";
+	
+	private final static String CP_SHORT_TITLE = "IRBNumber";
+	
+	private final static String VISIT_DATE = "Start Date";
+	
+	private final static String SITE_NAME = "Facility";
+	
 	private final static Log logger = LogFactory.getLog(CsvImporter.class);
 	
 	private OpenSpecimenException ose = new OpenSpecimenException(ErrorType.USER_ERROR);
@@ -60,20 +74,20 @@ public class CsvImporter {
 	
 	private void importParticipant(Record record) throws ParseException {                
 		CollectionProtocolRegistrationDetail cprDetail = new CollectionProtocolRegistrationDetail(); 
-		cprDetail.setCpShortTitle(record.getValue("IRBNumber"));
+		cprDetail.setCpShortTitle(record.getValue(CP_SHORT_TITLE));
 		cprDetail.setParticipant(new ParticipantDetail());
-		cprDetail.setRegistrationDate(new SimpleDateFormat(DATE_FORMAT).parse(record.getValue("Start Date")));
+		cprDetail.setRegistrationDate(new SimpleDateFormat(DATE_FORMAT).parse(record.getValue(VISIT_DATE)));
 		
 		// Adding participant Details
-		cprDetail.setPpid(record.getValue("Treatment"));
-		cprDetail.getParticipant().setFirstName(record.getValue("First Name"));
-		cprDetail.getParticipant().setLastName(record.getValue("Last Name"));
+		cprDetail.setPpid(record.getValue(PPID));
+		cprDetail.getParticipant().setFirstName(record.getValue(FIRST_NAME));
+		cprDetail.getParticipant().setLastName(record.getValue(LAST_NAME));
 	
 		// Setting PMI
 		cprDetail.getParticipant().setPhiAccess(true);
 		PmiDetail pmi = new PmiDetail();
-		pmi.setMrn(record.getValue("MRN"));
-		pmi.setSiteName("MSKCC Site");
+		pmi.setMrn(record.getValue(MRN));
+		pmi.setSiteName(record.getValue(SITE_NAME));
 		cprDetail.getParticipant().setPmi(pmi);
 		ResponseEvent<CollectionProtocolRegistrationDetail> resp = cprSvc.createRegistration(getRequest(cprDetail));
 		
@@ -86,12 +100,13 @@ public class CsvImporter {
 		String[] csvHeaderRow = dataSource.getHeader();
 		List<String> expectedHeader = new ArrayList<String>();
 		
-		expectedHeader.add("First Name");
-		expectedHeader.add("Last Name");
-		expectedHeader.add("Treatment");
-		expectedHeader.add("MRN");
-		expectedHeader.add("IRBNumber");
-		expectedHeader.add("Start Date");
+		expectedHeader.add(FIRST_NAME);
+		expectedHeader.add(LAST_NAME);
+		expectedHeader.add(PPID);
+		expectedHeader.add(MRN);
+		expectedHeader.add(CP_SHORT_TITLE);
+		expectedHeader.add(VISIT_DATE);
+		expectedHeader.add(SITE_NAME);
 		
 		for (String header : csvHeaderRow) {
 			if (!expectedHeader.contains(header)) {
