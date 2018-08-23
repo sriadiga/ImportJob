@@ -42,6 +42,8 @@ public class CsvImporter {
 	private final static Log logger = LogFactory.getLog(CsvImporter.class);
 	
 	private OpenSpecimenException ose;
+	//sri: this does not look right to me. Is this variable defined like this in other VP code?
+	// naming also does not seem right.
 	
 	@Autowired
 	private CollectionProtocolRegistrationService cprSvc;
@@ -65,6 +67,9 @@ public class CsvImporter {
 		    ose.checkAndThrow();
 		} catch (Exception e) {
 		    logger.error("Error while parsing csv file : \n" + e.getMessage());
+			//sri: this makes it look like the process will stop at the first err. 
+			//e.g. if there are 10 rows and first row has err, then it will stop at the first.
+			// instead it should try all 10 rows and report all errs in one go.
 		} finally {
 		    if (dataSource != null) {
 		    	dataSource.close();
@@ -112,7 +117,10 @@ public class CsvImporter {
 		
 		for (String header : csvHeaderRow) {
 			if (!expectedHeader.contains(header)) {
-				throw new Exception("Headers of csv file does not match");
+				throw new Exception("Could not parse the file because the headers of the CSV file is not as expected.");
+				//sri: fixed the error msg, see the difference so that you know what to do in future.
+				// it should be complete and proper sentence, not like a SMS or Wapp msg.
+				// Lastly, in all OS code, msgs are in property files. Not in code like this.
 			}
 		}
 	}
